@@ -13,7 +13,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: AccountFuncion
-      Handler: app.StreamLambdaHandler::handleRequest
+      Handler: app.ProxyLambdaHandler::handleRequest
       Runtime: java8
       MemorySize: 512
       Environment:

@@ -3,16 +3,17 @@ package model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
 import java.util.Objects;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({"id", "name", "email", "phonenumber", "motherName", "bornDate",
+        "salary","steps" })
+public class AccountRest {
 
-@JsonPropertyOrder({ "name", "email", "phonenumber", "motherName", "bornDate",
-        "salary" })
-public class Account {
-
+    @JsonProperty("Id")
+    private String id;
     @JsonProperty("name")
     private String name;
     @JsonProperty("email")
@@ -25,6 +26,8 @@ public class Account {
     private String bornDate;
     @JsonProperty("salary")
     private String salary;
+    @JsonProperty("steps")
+    private List<StepsRest> steps;
 
     public String getName() {
         return name;
@@ -74,21 +77,19 @@ public class Account {
         this.salary = salary;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Account account = (Account) o;
-        return Objects.equals(name, account.name) &&
-                Objects.equals(email, account.email) &&
-                Objects.equals(phoneNumber, account.phoneNumber) &&
-                Objects.equals(motherName, account.motherName) &&
-                Objects.equals(bornDate, account.bornDate) &&
-                Objects.equals(salary, account.salary);
+    public String getId() {
+        return id;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, email, phoneNumber, motherName, bornDate, salary);
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<StepsRest> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(List<StepsRest> steps) {
+        this.steps = steps;
     }
 }

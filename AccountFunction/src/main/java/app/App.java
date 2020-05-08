@@ -16,15 +16,11 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 import config.AppConfig;
-import entities.Arquivo;
-import model.Account;
-import org.springframework.beans.factory.annotation.Autowired;
+import entities.Account;
+import model.AccountRest;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDbFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import service.ArquivoService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,14 +54,14 @@ public class App implements RequestHandler<APIGatewayV2ProxyRequestEvent, APIGat
 
         try {
             APIGatewayV2ProxyResponseEvent response = new APIGatewayV2ProxyResponseEvent();
-            Account dataCar = new Account();
+            AccountRest dataCar = new AccountRest();
             Gson g = new Gson();
             if (input != null ) {
                 String body = input.getBody();
                 System.out.println(body);
                 if (input.getBody() != null) {
-                    dataCar = g.fromJson(input.getBody(), Account.class);
-                    Arquivo arquivo = new Arquivo(dataCar.getName(),"Teste");
+                    dataCar = g.fromJson(input.getBody(), AccountRest.class);
+                    Account arquivo = new Account();
 
                     MongoClient mongoClient = MongoClients.create("mongodb+srv://account-credit:teste@cluster0-uhz0z.mongodb.net/test?retryWrites=true&w=majority");
                     MongoDatabase database = mongoClient.getDatabase("account_credit");
