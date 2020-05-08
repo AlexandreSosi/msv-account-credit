@@ -6,11 +6,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="AccountD" />
+        <module name="Account" />
+        <module name="msv-account-credit" />
+        <module name="AccountFunction" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="AccountD" target="1.8" />
+      <module name="Account" target="1.8" />
+      <module name="AccountFunction" target="1.8" />
+      <module name="HelloWorld" target="1.8" />
+      <module name="msv-account-credit" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

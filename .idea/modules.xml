@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AccountFunction/AccountD.iml" filepath="$PROJECT_DIR$/AccountFunction/AccountD.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AccountFunction/Account.iml" filepath="$PROJECT_DIR$/AccountFunction/Account.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AccountFunction/AccountFunction.iml" filepath="$PROJECT_DIR$/AccountFunction/AccountFunction.iml" />
       <module fileurl="file://$PROJECT_DIR$/msv-account-credit.iml" filepath="$PROJECT_DIR$/msv-account-credit.iml" />
     </modules>
   </component>

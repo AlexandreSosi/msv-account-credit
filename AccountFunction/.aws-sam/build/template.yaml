@@ -9,11 +9,11 @@ Globals:
   Function:
     Timeout: 20
 Resources:
-  HelloWorldFunction:
+  AccountFuncion:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: HelloWorldFunction
-      Handler: app.App::handleRequest
+      CodeUri: AccountFuncion
+      Handler: app.StreamLambdaHandler::handleRequest
       Runtime: java8
       MemorySize: 512
       Environment:
@@ -26,17 +26,17 @@ Resources:
             Path: /hello
             Method: get
 Outputs:
-  HelloWorldApi:
+  AccountdApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value:
       Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
-  HelloWorldFunction:
+  AccountdFunction:
     Description: Hello World Lambda Function ARN
     Value:
       Fn::GetAtt:
       - HelloWorldFunction
       - Arn
-  HelloWorldFunctionIamRole:
+  AccountdFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value:
       Fn::GetAtt:

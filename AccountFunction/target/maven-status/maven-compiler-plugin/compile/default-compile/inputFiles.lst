@@ -1,4 +1,4 @@
-/home/alexandre/IdeaProjects/msv-account-credit/HelloWorldFunction/src/main/java/helloworld/App.java
-/home/alexandre/IdeaProjects/msv-account-credit/HelloWorldFunction/src/main/java/model/BillingAddress.java
-/home/alexandre/IdeaProjects/msv-account-credit/HelloWorldFunction/src/main/java/helloworld/GatewayResponse.java
-/home/alexandre/IdeaProjects/msv-account-credit/HelloWorldFunction/src/main/java/model/Account.java
+/home/alexandre/IdeaProjects/msv-account-credit/AccountFunction/src/main/java/app/GatewayResponse.java
+/home/alexandre/IdeaProjects/msv-account-credit/AccountFunction/src/main/java/model/BillingAddress.java
+/home/alexandre/IdeaProjects/msv-account-credit/AccountFunction/src/main/java/model/Account.java
+/home/alexandre/IdeaProjects/msv-account-credit/AccountFunction/src/main/java/app/App.java

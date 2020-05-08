@@ -1,4 +1,13 @@
-model/BillingAddress.class
-helloworld/GatewayResponse.class
+app/GatewayResponse.class
+app/SpringApiConfig$1.class
+repository/ArquivoRepository.class
+config/ApplicationConfig.class
 model/Account.class
-helloworld/App.class
+entities/Arquivo.class
+app/StreamLambdaHandler.class
+controller/PingController.class
+model/BillingAddress.class
+service/ArquivoService.class
+app/App.class
+app/SpringApiConfig.class
+config/AppConfig.class
