@@ -12,9 +12,9 @@ import java.time.format.DateTimeFormatter;
 public class StepsRest {
     @JsonProperty("nameStep")
     private String nameStep;
-    @JsonProperty("status")
+    @JsonProperty("statusStep")
     private String status;
-    @JsonProperty("status")
+    @JsonProperty("createdAt")
     private String createdAt;
 
     public String getCreatedAt() {

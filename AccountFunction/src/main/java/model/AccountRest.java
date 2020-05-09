@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.List;
-import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"id", "name", "email", "phonenumber", "motherName", "bornDate",
@@ -28,6 +27,10 @@ public class AccountRest {
     private String salary;
     @JsonProperty("steps")
     private List<StepsRest> steps;
+
+/*    public AccountRest() {
+        this.steps = new ArrayList<StepsRest>();
+    }*/
 
     public String getName() {
         return name;

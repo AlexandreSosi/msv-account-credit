@@ -9,11 +9,12 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import config.SpringApiConfig;
 
 
-public class ProxyLambdaHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse> {
+public class ProxyLambdaHandler implements RequestHandler<AwsProxyRequest, AwsProxyResponse>  {
     private static SpringLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
     static {
         try {
             handler = SpringLambdaContainerHandler.getAwsProxyHandler(SpringApiConfig.class);
+
         } catch (ContainerInitializationException e) {
             // if we fail here. We re-throw the exception to force another cold start
             e.printStackTrace();
@@ -21,8 +22,13 @@ public class ProxyLambdaHandler implements RequestHandler<AwsProxyRequest, AwsPr
         }
     }
 
-    @Override
+/*    @Override
     public AwsProxyResponse handleRequest(AwsProxyRequest inputStream, Context context) {
-       return handler.proxy((AwsProxyRequest)inputStream, context);
+       return handler.proxy(inputStream, context);
+    }*/
+
+    @Override
+    public AwsProxyResponse handleRequest(AwsProxyRequest input, Context context) {
+        return handler.proxy(input, context);
     }
 }

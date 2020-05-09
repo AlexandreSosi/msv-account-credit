@@ -9,10 +9,10 @@ Globals:
   Function:
     Timeout: 20
 Resources:
-  AccountFuncion:
+  AccountFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: AccountFuncion
+      CodeUri: AccountFunction
       Handler: app.ProxyLambdaHandler::handleRequest
       Runtime: java8
       MemorySize: 512
@@ -20,25 +20,30 @@ Resources:
         Variables:
           PARAM1: VALUE
       Events:
-        HelloWorld:
+        AccountCreate:
           Type: Api
           Properties:
-            Path: /hello
+            Path: /create-account
+            Method: post
+        AccountFind:
+          Type: Api
+          Properties:
+            Path: /find-account
             Method: get
 Outputs:
-  AccountdApi:
+  AccountApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value:
-      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
-  AccountdFunction:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/account/
+  AccountFunction:
     Description: Hello World Lambda Function ARN
     Value:
       Fn::GetAtt:
-      - HelloWorldFunction
+      - AccountFunction
       - Arn
-  AccountdFunctionIamRole:
+  AccountFunctionIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value:
       Fn::GetAtt:
-      - HelloWorldFunctionRole
+      - AccountFunction
       - Arn

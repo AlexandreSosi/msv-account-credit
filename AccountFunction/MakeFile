@@ -1,0 +1,2 @@
+#!/bin/bash
+aws lambda update-function-code --function-name msv-account-card --zip-file fileb://target/Account-1.0.jar

@@ -26,17 +26,19 @@ public class AccountController {
     @RequestMapping(path = "/find-account/{name}", method = RequestMethod.GET)
     public ResponseEntity<?> ping(@PathVariable("name") String name) {
         AccountRest rest = arquivoService.buscar(name);
+/*
         addStepRest(rest, StepsName.RISK, StepStatus.START);
         arquivoService.salvar(rest);
         AccountRest restback = arquivoService.buscar(name);
+*/
 
-        return new ResponseEntity(restback, HttpStatus.OK);
+        return new ResponseEntity(rest, HttpStatus.OK);
     }
 
-     @RequestMapping(path = "/create-account", method = RequestMethod.POST)
-    public ResponseEntity<?> createAccount(@RequestBody String body)  throws IOException {
+    @RequestMapping(path = "/create-account", method = RequestMethod.POST)
+    public ResponseEntity<?> createAccount(@RequestBody String request)  throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        AccountRest accountRest = mapper.readValue(body,AccountRest.class);
+         AccountRest accountRest = mapper.readValue(request,AccountRest.class);
          addStepRest(accountRest, StepsName.INCLUDE, StepStatus.START);
          arquivoService.salvar(accountRest);
         return new ResponseEntity<>(HttpStatus.OK);

@@ -1,7 +1,0 @@
-#Yaml application
-#Habilita Mongo
-spring:
-  data:
-    mongodb:
-      uri: mongodb+srv://account-credit:mikose123@cluster0-uhz0z.mongodb.net/test?retryWrites=true&w=majority
----

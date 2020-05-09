@@ -1,0 +1,239 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS
+
+  Sample SAM Template for AWS
+
+  '
+Outputs:
+  AccountApi:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${AccountAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/account/
+  AccountFunction:
+    Description: Hello World Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - AccountFunction
+      - Arn
+  AccountFunctionIamRole:
+    Description: Implicit IAM Role created for Hello World function
+    Value:
+      Fn::GetAtt:
+      - AccountFunction
+      - Arn
+  IdentityPoolId:
+    Export:
+      Name:
+        Fn::Sub: IdentityPool::Id
+    Value:
+      Ref: IdentityPool
+  UserPoolClientId:
+    Export:
+      Name:
+        Fn::Sub: UserPoolClient::Id
+    Value:
+      Ref: UserPoolClient
+  UserPoolId:
+    Export:
+      Name:
+        Fn::Sub: UserPool::Id
+    Value:
+      Ref: UserPool
+Resources:
+  AccountAPI:
+    Properties:
+      Auth:
+        Authorizers:
+          MyCognitoAuth:
+            AuthorizationScopes:
+            - scope1
+            UserPoolArn:
+              Fn::GetAtt:
+              - UserPool
+              - Arn
+        DefaultAuthorizer: MyCognitoAuth
+      StageName: Prod
+    Type: AWS::Serverless::Api
+  AccountFunction:
+    Properties:
+      CodeUri: s3://accountemplates/9a9a98fd892babd79c98020331943de9
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        AccountCreate:
+          Properties:
+            Method: post
+            Path: /create-account
+            RestApiId:
+              Ref: AccountAPI
+          Type: Api
+        AccountFind:
+          Properties:
+            Method: get
+            Path: /find-account
+            RestApiId:
+              Ref: AccountAPI
+          Type: Api
+      Handler: app.ProxyLambdaHandler::handleRequest
+      MemorySize: 512
+      Policies:
+      - AWSLambdaBasicExecutionRole
+      - AWSLambdaReadOnlyAccess
+      - AWSXrayWriteOnlyAccess
+      - AWSLambdaVPCAccessExecutionRole
+      Runtime: java8
+    Type: AWS::Serverless::Function
+  CognitoAuthorizedRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRoleWithWebIdentity
+          Condition:
+            ForAnyValue:StringLike:
+              cognito-identity.amazonaws.com:amr: authenticated
+            StringEquals:
+              cognito-identity.amazonaws.com:aud:
+                Ref: IdentityPool
+          Effect: Allow
+          Principal:
+            Federated: cognito-identity.amazonaws.com
+        Version: '2012-10-17'
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - mobileanalytics:PutEvents
+            - cognito-sync:*
+            - cognito-identity:*
+            Effect: Allow
+            Resource: '*'
+          - Action:
+            - lambda:InvokeFunction
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: CognitoAuthorizedPolicy
+    Type: AWS::IAM::Role
+  CognitoUnAuthorizedRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRoleWithWebIdentity
+          Condition:
+            ForAnyValue:StringLike:
+              cognito-identity.amazonaws.com:amr: unauthenticated
+            StringEquals:
+              cognito-identity.amazonaws.com:aud:
+                Ref: IdentityPool
+          Effect: Allow
+          Principal:
+            Federated: cognito-identity.amazonaws.com
+        Version: '2012-10-17'
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - mobileanalytics:PutEvents
+            - cognito-sync:*
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: CognitoUnauthorizedPolicy
+    Type: AWS::IAM::Role
+  IdentityPool:
+    Properties:
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders:
+      - ClientId:
+          Ref: UserPoolClient
+        ProviderName:
+          Fn::GetAtt:
+          - UserPool
+          - ProviderName
+      IdentityPoolName: accountcreditIdentity
+    Type: AWS::Cognito::IdentityPool
+  IdentityPoolRoleMapping:
+    Properties:
+      IdentityPoolId:
+        Ref: IdentityPool
+      Roles:
+        authenticated:
+          Fn::GetAtt:
+          - CognitoAuthorizedRole
+          - Arn
+        unauthenticated:
+          Fn::GetAtt:
+          - CognitoUnAuthorizedRole
+          - Arn
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+  SNSRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - cognito-idp.amazonaws.com
+        Version: '2012-10-17'
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action: sns:publish
+            Effect: Allow
+            Resource: '*'
+          Version: '2012-10-17'
+        PolicyName: CognitoSNSPolicy
+    Type: AWS::IAM::Role
+  UserPool:
+    Properties:
+      AutoVerifiedAttributes:
+      - phone_number
+      MfaConfiguration: OPTIONAL
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+      Schema:
+      - AttributeDataType: String
+        Mutable: true
+        Name: name
+        Required: false
+      - AttributeDataType: String
+        Mutable: false
+        Name: email
+        Required: true
+      - AttributeDataType: String
+        Mutable: false
+        Name: phone_number
+        Required: true
+      SmsConfiguration:
+        ExternalId: accountcredit-external
+        SnsCallerArn:
+          Fn::GetAtt:
+          - SNSRole
+          - Arn
+      UserPoolName: accountcredit-user-pool
+      UsernameAttributes:
+      - email
+    Type: AWS::Cognito::UserPool
+  UserPoolClient:
+    Properties:
+      ClientName: accountcredit-client
+      ExplicitAuthFlows:
+      - ALLOW_USER_SRP_AUTH
+      - ALLOW_REFRESH_TOKEN_AUTH
+      - ALLOW_USER_PASSWORD_AUTH
+      - ALLOW_ADMIN_USER_PASSWORD_AUTH
+      GenerateSecret: false
+      UserPoolId:
+        Ref: UserPool
+    Type: AWS::Cognito::UserPoolClient
+Transform: AWS::Serverless-2016-10-31

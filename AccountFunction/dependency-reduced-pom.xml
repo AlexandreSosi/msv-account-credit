@@ -44,6 +44,9 @@
   </dependencies>
   <properties>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <awsRegion>us-east-1</awsRegion>
     <maven.compiler.source>1.8</maven.compiler.source>
+    <stackName>msv-account-credit</stackName>
+    <s3Bucket>msv-account-credit</s3Bucket>
   </properties>
 </project>
