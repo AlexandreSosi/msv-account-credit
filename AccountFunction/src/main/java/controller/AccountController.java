@@ -26,12 +26,6 @@ public class AccountController {
     @RequestMapping(path = "/find-account/{name}", method = RequestMethod.GET)
     public ResponseEntity<?> ping(@PathVariable("name") String name) {
         AccountRest rest = arquivoService.buscar(name);
-/*
-        addStepRest(rest, StepsName.RISK, StepStatus.START);
-        arquivoService.salvar(rest);
-        AccountRest restback = arquivoService.buscar(name);
-*/
-
         return new ResponseEntity(rest, HttpStatus.OK);
     }
 

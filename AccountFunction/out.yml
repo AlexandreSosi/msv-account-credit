@@ -5,10 +5,6 @@ Description: 'AWS
 
   '
 Outputs:
-  AccountApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value:
-      Fn::Sub: https://${AccountAPI}.execute-api.${AWS::Region}.amazonaws.com/Prod/account/
   AccountFunction:
     Description: Hello World Lambda Function ARN
     Value:
@@ -21,6 +17,10 @@ Outputs:
       Fn::GetAtt:
       - AccountFunction
       - Arn
+  ApiAccountGateway:
+    Description: API Gateway endpoint URL for Prod stage for Hello World function
+    Value:
+      Fn::Sub: https://${ApiAccountGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/account/
   IdentityPoolId:
     Export:
       Name:
@@ -40,50 +40,145 @@ Outputs:
     Value:
       Ref: UserPool
 Resources:
-  AccountAPI:
-    Properties:
-      Auth:
-        Authorizers:
-          MyCognitoAuth:
-            AuthorizationScopes:
-            - scope1
-            UserPoolArn:
-              Fn::GetAtt:
-              - UserPool
-              - Arn
-        DefaultAuthorizer: MyCognitoAuth
-      StageName: Prod
-    Type: AWS::Serverless::Api
   AccountFunction:
     Properties:
-      CodeUri: s3://accountemplates/9a9a98fd892babd79c98020331943de9
+      Code:
+        S3Bucket: accountemplates
+        S3Key: 050ef86c52fa4f783448e3fbb908b7e5
+      Description:
       Environment:
         Variables:
-          PARAM1: VALUE
-      Events:
-        AccountCreate:
-          Properties:
-            Method: post
-            Path: /create-account
-            RestApiId:
-              Ref: AccountAPI
-          Type: Api
-        AccountFind:
-          Properties:
-            Method: get
-            Path: /find-account
-            RestApiId:
-              Ref: AccountAPI
-          Type: Api
+          API_ENV: PROD
+      FunctionName:
+        Fn::Sub: ${AWS::StackName}
       Handler: app.ProxyLambdaHandler::handleRequest
       MemorySize: 512
-      Policies:
-      - AWSLambdaBasicExecutionRole
-      - AWSLambdaReadOnlyAccess
-      - AWSXrayWriteOnlyAccess
-      - AWSLambdaVPCAccessExecutionRole
+      Role:
+        Fn::Sub: arn:aws:iam::${AWS::AccountId}:role/lambda-role-default
       Runtime: java8
-    Type: AWS::Serverless::Function
+      Timeout: 30
+      TracingConfig:
+        Mode: PassThrough
+    Type: AWS::Lambda::Function
+  ApiAccountGateway:
+    DependsOn:
+    - AccountFunction
+    Properties:
+      Description:
+      EndpointConfiguration:
+        Types:
+        - REGIONAL
+      FailOnWarnings: true
+      Name:
+        Fn::Sub: ${AWS::StackName}
+    Type: AWS::ApiGateway::RestApi
+  ApiDeployment:
+    DependsOn:
+    - ApiProxyRequest
+    - ApiRootRequest
+    Properties:
+      RestApiId:
+        Ref: ApiAccountGateway
+    Type: AWS::ApiGateway::Deployment
+  ApiGatewayAccount:
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+        - ApiGatewayCloudWatchLogsRole
+        - Arn
+    Type: AWS::ApiGateway::Account
+  ApiGatewayCloudWatchLogsRole:
+    Properties:
+      AssumeRolePolicyDocument: "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\"\
+        : [{\n        \"Effect\": \"Allow\",\n        \"Principal\": { \"Service\"\
+        : [ \"apigateway.amazonaws.com\" ] },\n        \"Action\": [ \"sts:AssumeRole\"\
+        \ ]\n    }]\n}\n"
+      Policies:
+      - PolicyDocument: "{\n    \"Version\": \"2012-10-17\",\n    \"Statement\": [{\n\
+          \      \"Effect\": \"Allow\",\n      \"Action\": [\n        \"logs:CreateLogGroup\"\
+          ,\n        \"logs:CreateLogStream\",\n        \"logs:DescribeLogGroups\"\
+          ,\n        \"logs:DescribeLogStreams\",\n        \"logs:PutLogEvents\",\n\
+          \        \"logs:GetLogEvents\",\n        \"logs:FilterLogEvents\"\n    \
+          \  ],\n      \"Resource\": \"*\"\n    }]\n}\n"
+        PolicyName: ApiGatewayLogsPolicy
+    Type: AWS::IAM::Role
+  ApiGatewayStage:
+    DependsOn:
+    - ApiGatewayAccount
+    Properties:
+      DeploymentId:
+        Ref: ApiDeployment
+      MethodSettings:
+      - DataTraceEnabled: true
+        HttpMethod: '*'
+        LoggingLevel: INFO
+        ResourcePath: /*
+      RestApiId:
+        Ref: ApiAccountGateway
+      StageName: latest
+    Type: AWS::ApiGateway::Stage
+  ApiProxyRequest:
+    DependsOn:
+    - LambdaProxyPermission
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: AuthCognito
+      HttpMethod: ANY
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AccountFunction}/invocations
+      ResourceId:
+        Ref: ApiProxyResource
+      RestApiId:
+        Ref: ApiAccountGateway
+    Type: AWS::ApiGateway::Method
+  ApiProxyResource:
+    DependsOn:
+    - ApiAccountGateway
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+        - ApiAccountGateway
+        - RootResourceId
+      PathPart: '{proxy+}'
+      RestApiId:
+        Ref: ApiAccountGateway
+    Type: AWS::ApiGateway::Resource
+  ApiRootRequest:
+    DependsOn:
+    - LambdaRootPermission
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: AuthCognito
+      HttpMethod: ANY
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AccountFunction}/invocations
+      ResourceId:
+        Fn::GetAtt:
+        - ApiAccountGateway
+        - RootResourceId
+      RestApiId:
+        Ref: ApiAccountGateway
+    Type: AWS::ApiGateway::Method
+  AuthCognito:
+    Properties:
+      IdentitySource: method.request.header.Authorization
+      Name: sso-msv-cognito
+      ProviderARNs:
+      - Fn::GetAtt:
+        - UserPool
+        - Arn
+      RestApiId:
+        Ref: ApiAccountGateway
+      Type: COGNITO_USER_POOLS
+    Type: AWS::ApiGateway::Authorizer
   CognitoAuthorizedRole:
     Properties:
       AssumeRolePolicyDocument:
@@ -169,6 +264,48 @@ Resources:
           - CognitoUnAuthorizedRole
           - Arn
     Type: AWS::Cognito::IdentityPoolRoleAttachment
+  LambdaProxyPermission:
+    DependsOn:
+    - ApiAccountGateway
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName:
+        Ref: AccountFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiAccountGateway}/*/*/*
+    Type: AWS::Lambda::Permission
+  LambdaRootPermission:
+    DependsOn:
+    - ApiAccountGateway
+    Properties:
+      Action: lambda:invokeFunction
+      FunctionName:
+        Ref: AccountFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiAccountGateway}/*/*/
+    Type: AWS::Lambda::Permission
+  RoleLambda:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+            - apigateway.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      - arn:aws:iam::aws:policy/AWSLambdaReadOnlyAccess
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      MaxSessionDuration: 3600
+      RoleName: lambda-role-default
+    Type: AWS::IAM::Role
   SNSRole:
     Properties:
       AssumeRolePolicyDocument:
