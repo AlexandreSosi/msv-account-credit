@@ -33,18 +33,18 @@ bash MakeFile
  
  ##IF you dont have time to  deploy
  
- them access this url:
+ then access this url:
  
  Web for token: http://account-credit.s3-website-sa-east-1.amazonaws.com/
     you will need create a account and correct phone number for receive MFA with code validation how I do this fast
-    pay attention for input phone nunber
+    pay attention for input phone number
  
  APIGateway: https://2ws69md7c3.execute-api.us-east-1.amazonaws.com/latest
  
  
  After this success process you need access console aws and see .
 --- 
- The healt of your stack publish
+ The health of your stack publish
  
  ![Screenshot](AccountFunction/docs/aws-cloudformation-1.png)
 
@@ -56,8 +56,8 @@ bash MakeFile
  ---
  With URL api you can access two operations:
  
- But before you need git clone other project for get token Authorizer, and read Readme. You will need UserPollClientId and UserPoolid
- 
+ But before you need get git clone other project for get token Authorizer, and read README.md. You will need UserPollClientId and UserPoolid
+   
   ![Screenshot](AccountFunction/docs/web-token.png)
   
   Click and copy this and add than to Header of Postman
@@ -86,12 +86,11 @@ bash MakeFile
 Inside this collection have two methods show up.
 
   ![Screenshot](AccountFunction/docs/postman--methods.png)
-
 [Download file](AccountFunction/docs/Account-Credit.postman_collection.json)
 
 ## Unit tests
 
-Tests are defined in the `AccountFunction/src/test` folder in this project.
+A Test defined in the `AccountFunction/src/test` folder in this project.
 
 ```bash
 AWS$ cd AccountFunction
