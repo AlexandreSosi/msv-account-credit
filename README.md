@@ -15,8 +15,9 @@ You need the following tools.
 * Java8 - [Install the Java SE Development Kit 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * Maven - [Install Maven](https://maven.apache.org/install.html)
 * Docker - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
+* AWS CLI - [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-linux-al2017.html)
 
-
+  You need configure a credential for aws cli (https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 
 ## Deploy the application Cloud AWS
 
