@@ -22,7 +22,7 @@ You need the following tools.
 
 if you want publish in cloud aws following this steps:
 
-check if you in the path of project msv-account-credit
+check if you in the path of project msv-account-credit/AccountFunction
 ~~~
 bash CloudFormation
 bash MakeFile
